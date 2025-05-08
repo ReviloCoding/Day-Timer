@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Day Percentage Timer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #121212;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    #progress-container {
+      width: 80%;
+      height: 40px;
+      border-radius: 20px;
+      background: linear-gradient(to right, green, red);
+      margin: 20px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #progress-bar {
+      height: 100%;
+      border-radius: 20px;
+      transition: width 0.5s ease-in-out;
+      width: 0%;
+    }
+
+    #progress-dot {
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      left: 0%;
+      transition: left 0.5s ease-in-out;
+    }
+
+    #settings-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    input {
+      font-size: 1.2rem;
+      padding: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #percentage-display {
+      margin-top: 10px;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Day Percentage Timer</h1>
+
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+    <div id="progress-dot"></div>
+  </div>
+
+  <div id="percentage-display">0% of the day passed</div>
+
+  <div id="settings-container">
+    <h3>Set your time frame:</h3>
+    <input type="time" id="start-time">
+    <input type="time" id="end-time">
+    <button id="start-button" onclick="startTimer()">Start Timer</button>
+  </div>
+
+  <script>
+    let timerInterval;
+    let isTimerActive = false;
+    let startDate, endDate;
+
+    window.onload = function () {
+      const startInput = document.getElementById('start-time');
+      const endInput = document.getElementById('end-time');
+
+      const savedStartTime = localStorage.getItem('startTime');
+      const savedEndTime = localStorage.getItem('endTime');
+
+      if (savedStartTime) startInput.value = savedStartTime;
+      if (savedEndTime) endInput.value = savedEndTime;
+
+      // Save times on input change
+      startInput.addEventListener('input', () => {
+        localStorage.setItem('startTime', startInput.value);
+      });
+      endInput.addEventListener('input', () => {
+        localStorage.setItem('endTime', endInput.value);
+      });
+
+      // Auto start if saved times are valid and current time is in range
+      if (savedStartTime && savedEndTime) {
+        const now = new Date();
+        const [startHour, startMinute] = savedStartTime.split(':');
+        const [endHour, endMinute] = savedEndTime.split(':');
+
+        startDate = new Date();
+        endDate = new Date();
+        startDate.setHours(startHour, startMinute, 0, 0);
+        endDate.setHours(endHour, endMinute, 0, 0);
+
+        if (now >= startDate && now <= endDate) {
+          isTimerActive = true;
+          document.getElementById('start-button').disabled = true;
+          updateProgressBar();
+          timerInterval = setInterval(updateProgressBar, 1000);
+        }
+      }
+    };
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      isTimerActive = false;
+
+      const startInput = document.getElementById('start-time').value;
+      const endInput = document.getElementById('end-time').value;
+
+      localStorage.setItem('startTime', startInput);
+      localStorage.setItem('endTime', endInput);
+
+      if (!startInput || !endInput) {
+        alert("Please enter both start and end times.");
+        return;
+      }
+
+      const [startHour, startMinute] = startInput.split(':');
+      const [endHour, endMinute] = endInput.split(':');
+
+      startDate = new Date();
+      endDate = new Date();
+      startDate.setHours(startHour, startMinute, 0, 0);
+      endDate.setHours(endHour, endMinute, 0, 0);
+
+      const now = new Date();
+      if (now < startDate || now > endDate) {
+        alert("Current time is outside the selected time frame.");
+        return;
+      }
+
+      isTimerActive = true;
+      document.getElementById('start-button').disabled = true;
+
+      updateProgressBar();
+      timerInterval = setInterval(updateProgressBar, 1000);
+    }
+
+    function updateProgressBar() {
+      const now = new Date();
+
+      if (!startDate || !endDate) return;
+
+      if (now < startDate || now > endDate) {
+        clearInterval(timerInterval);
+        return;
+      }
+
+      const total = endDate - startDate;
+      const passed = now - startDate;
+      const percent = (passed / total) * 100;
+      const safePercent = Math.min(percent, 100);
+
+      document.getElementById('progress-bar').style.width = safePercent + '%';
+      document.getElementById('progress-dot').style.left = safePercent + '%';
+      document.getElementById('percentage-display').textContent =
+        safePercent.toFixed(2) + '% of the day passed';
+    }
+  </script>
+</body>
+</html>
