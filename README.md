@@ -1,2 +1,8 @@
 # Day-Timer
 A timer that runs purely on html! simply runs in a browser window to track how far you are through your day with a sleek minimal design!
+
+# How to use!
+Just download and run the HTML file to open it in your browser window!
+Then Bookmark it so its there for future!
+Click the clocks to set the start and end time of your day and then hit start!
+Enjoy!
