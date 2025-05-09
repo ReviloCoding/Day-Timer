@@ -1,5 +1,5 @@
 # Day-Timer
-A timer that runs purely on html! simply runs in a browser window to track how far you are through your day with a sleek minimal design!
+A timer that runs purely on html that shows you exactly how far you are through your day in a percentage! simply runs in a browser window to track how far you are through your day with a sleek minimal design!
 
 # How to use!
 Just download and run the HTML file to open it in your browser window!
